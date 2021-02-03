@@ -1,8 +1,13 @@
 package fr.tse.fise3.info6.start_up_poc.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import lombok.ToString;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 public class Log {
 
@@ -12,5 +17,10 @@ public class Log {
 
     @OneToOne
     private User user;
+
+    @ManyToOne
+    @JsonIgnoreProperties("logs")
+    @ToString.Exclude
+    private Project project;
 
 }

@@ -1,10 +1,15 @@
 package fr.tse.fise3.info6.start_up_poc.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+import javax.persistence.*;
+import javax.validation.Valid;
+import java.util.HashSet;
+import java.util.Set;
+
+@Data
 @Entity
 public class User {
 
@@ -13,4 +18,28 @@ public class User {
     private String lastName;
     private String email;
     private String password;
+
+    @ManyToOne
+    @Valid
+    private RoleStatus roleStatus;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToMany(mappedBy="users",fetch= FetchType.EAGER)
+    private Set<Project> projects;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "manager")
+    private Set<User> subordinates;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne
+    private User manager;
+
+    public User(){
+        this.projects = new HashSet<>();
+        this.subordinates = new HashSet<>();
+    }
 }
