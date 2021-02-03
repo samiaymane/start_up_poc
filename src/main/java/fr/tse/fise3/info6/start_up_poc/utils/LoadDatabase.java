@@ -80,7 +80,7 @@ public class LoadDatabase {
             user2.setLastName("dev2");
             user2.setPassword("dev2");
             user2.setRoleStatus(roleStatusRepository.findById(Constants.ROLE_STATUS_USER_ID).orElse(null));
-            userRepository.save(user1);
+            userRepository.save(user2);
             log.info(user2 + " saved to database.");
 
             log.info("All seem to be OK for the app initialization!");
