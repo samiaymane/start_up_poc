@@ -17,6 +17,8 @@ public interface UserService {
 
     public User findUser(Long id);
 
+    public User findUser(String username, String password);
+
     public RoleStatus findRoleStatus(Long id);
 
     public User changeRoleStatusFor(User user, RoleStatus roleStatus);

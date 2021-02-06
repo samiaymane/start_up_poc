@@ -66,6 +66,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public User findUser(String username, String password){
+
+        return null;
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public RoleStatus findRoleStatus(Long id){
         return this.roleStatusRepository.findById(id).orElse(null);
