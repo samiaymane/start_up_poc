@@ -2,16 +2,22 @@ package fr.tse.fise3.info6.start_up_poc.service.impl;
 
 import fr.tse.fise3.info6.start_up_poc.dao.LogRepository;
 import fr.tse.fise3.info6.start_up_poc.dao.ProjectRepository;
+import fr.tse.fise3.info6.start_up_poc.dao.UserRepository;
 import fr.tse.fise3.info6.start_up_poc.domain.Log;
 import fr.tse.fise3.info6.start_up_poc.domain.Project;
+import fr.tse.fise3.info6.start_up_poc.domain.User;
 import fr.tse.fise3.info6.start_up_poc.service.ProjectService;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -22,9 +28,12 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private LogRepository logRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     @Transactional(readOnly = true)
-    public Collection<Project> findAllProjects() {
+    public List<Project> findAllProjects() {
         return this.projectRepository.findAll();
     }
 
@@ -35,51 +44,106 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Log findLog(Long id){
+        return this.logRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional
     public Project createProject(Project project) {
         return this.projectRepository.save(project);
     }
 
     @Override
+    @Transactional
     public void deleteProject(Project project) {
+        project = this.findProject(project.getId());
         project.clearLogs();
+        project.clearUsers();
         this.projectRepository.delete(project);
     }
 
     @Override
+    @Transactional
     public Project affectLogToProject(Project project, Log log){
+
         Project oldProject = log.getProject();
 
         if(oldProject != null){
             throw new IllegalStateException();
         }
-        log.setProject(project);
-        project.getLogs().add(log);
+        project.addLog(log);
+        this.logRepository.save(log);
         return project;
     }
 
     @Override
+    @Transactional
+    public Log affectLogToUser(Log log, User user){
+
+        User foundUser = this.userRepository.findById(user.getId()).orElse(null);
+        Log foundLog = this.findLog(log.getId());
+
+        User oldUser = foundLog.getUser();
+
+        if(oldUser != null){
+            throw new IllegalStateException();
+        }
+        foundLog.setUser(foundUser);
+        return foundLog;
+    }
+
+    @Override
+    @Transactional
+    public Project affectUserToProject(Project project, User user){
+
+        User foundUser = this.userRepository.findById(user.getId()).orElse(null);
+        Project foundProject = this.findProject(project.getId());
+
+        foundUser.addProject(foundProject);
+        return foundProject;
+    }
+
+    @Override
+    @Transactional
     public Log createLog(Log log) {
         return this.logRepository.save(log);
     }
 
     @Override
+    @Transactional
     public void deleteLog(Log log) {
-        log.getProject().getLogs().remove(log);
+        Project project = log.getProject();
+        if(project != null){
+            project.getLogs().remove(log);
+        }
         log.setProject(null);
+        this.logRepository.save(log);
         this.logRepository.delete(log);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Collection<Log> findLogsForProject(Project project){
+    public List<Log> findLogsForProject(Project project){
 
         Project foundProject = this.findProject(project.getId());
 
         if(foundProject != null){
             Hibernate.initialize(foundProject.getLogs());
-            return foundProject.getLogs();
+            return new ArrayList<>(foundProject.getLogs());
         }else{
-            return new HashSet<>();
+            return new ArrayList<>();
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Log> findLogsForUser(User user) {
+        List<Log> logs = logRepository.findAll(Sort.by("start").descending())
+                .stream()
+                .filter(log -> user.equals(log.getUser()))
+                .collect(Collectors.toList());
+        return logs;
     }
 }

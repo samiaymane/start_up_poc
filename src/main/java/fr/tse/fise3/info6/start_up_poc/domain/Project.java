@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,15 +38,12 @@ public class Project {
     public Project(){
         this.logs = new HashSet<>();
         this.users = new HashSet<>();
-    }
-
-    public void addUser(User user){
-        user.getProjects().add(this);
-        this.users.add(user);
+        this.creationDate = LocalDate.now();
     }
 
     public void addLog(Log log){
         this.logs.add(log);
+        log.setProject(this);
     }
 
     public void clearLogs(){
@@ -53,6 +51,17 @@ public class Project {
             log.setProject(null);
         }
         this.logs.clear();
+    }
+
+    public void removeUser(User user){
+        this.users.remove(user);
+    }
+
+    public void clearUsers(){
+        for (User user : this.users){
+            user.removeProject(this);
+        }
+        this.users.clear();
     }
 
 }
