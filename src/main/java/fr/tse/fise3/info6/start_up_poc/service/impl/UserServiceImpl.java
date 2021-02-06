@@ -8,18 +8,21 @@ import fr.tse.fise3.info6.start_up_poc.domain.RoleStatus;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
 import fr.tse.fise3.info6.start_up_poc.service.UserService;
 import fr.tse.fise3.info6.start_up_poc.utils.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -27,6 +30,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RoleStatusRepository roleStatusRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -65,11 +71,12 @@ public class UserServiceImpl implements UserService {
         return this.userRepository.findById(id).orElse(null);
     }
 
-    @Override
-    @Transactional
-    public User findUser(String username, String password){
-
-        return null;
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Objects.requireNonNull(email);
+        User user = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return (UserDetails) user;
     }
 
     @Override
@@ -204,6 +211,7 @@ public class UserServiceImpl implements UserService {
 
         RoleStatus userStatus = this.findRoleStatus(Constants.ROLE_STATUS_USER_ID);
         user.setRoleStatus(userStatus);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return this.userRepository.save(user);
     }
 
@@ -228,6 +236,7 @@ public class UserServiceImpl implements UserService {
     public User createAdmin(User user) {
         RoleStatus adminStatus = this.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
         user.setRoleStatus(adminStatus);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return this.userRepository.save(user);
     }
 }

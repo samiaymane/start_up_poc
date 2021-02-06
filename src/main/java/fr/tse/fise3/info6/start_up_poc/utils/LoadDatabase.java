@@ -8,14 +8,19 @@ import fr.tse.fise3.info6.start_up_poc.domain.Project;
 import fr.tse.fise3.info6.start_up_poc.domain.RoleStatus;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @Slf4j
 public class LoadDatabase {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Bean
     @Profile("!test")
@@ -40,7 +45,7 @@ public class LoadDatabase {
             admin.setEmail("admin@dev.dev");
             admin.setFirstName("admin");
             admin.setLastName("admin");
-            admin.setPassword("admin");
+            admin.setPassword(passwordEncoder.encode("admin"));
             admin.setRoleStatus(roleStatusRepository.findById(Constants.ROLE_STATUS_ADMIN_ID).orElse(null));
             userRepository.save(admin);
             log.info(admin + " saved to database.");
@@ -49,7 +54,7 @@ public class LoadDatabase {
             manager1.setEmail("manager1@dev.dev");
             manager1.setFirstName("manager1");
             manager1.setLastName("manager1");
-            manager1.setPassword("manager1");
+            manager1.setPassword(passwordEncoder.encode("manager1"));
             manager1.setRoleStatus(roleStatusRepository.findById(Constants.ROLE_STATUS_MANAGER_ID).orElse(null));
             manager1.addProject(project1);
             userRepository.save(manager1);
@@ -59,7 +64,7 @@ public class LoadDatabase {
             manager2.setEmail("manager2@dev.dev");
             manager2.setFirstName("manager2");
             manager2.setLastName("manager2");
-            manager2.setPassword("manager2");
+            manager2.setPassword(passwordEncoder.encode("manager2"));
             manager2.setRoleStatus(roleStatusRepository.findById(Constants.ROLE_STATUS_MANAGER_ID).orElse(null));
             userRepository.save(manager2);
             log.info(manager2 + " saved to database.");
@@ -68,7 +73,7 @@ public class LoadDatabase {
             user1.setEmail("dev1@dev.dev");
             user1.setFirstName("dev1");
             user1.setLastName("dev1");
-            user1.setPassword("dev1");
+            user1.setPassword(passwordEncoder.encode("dev1"));
             user1.setRoleStatus(roleStatusRepository.findById(Constants.ROLE_STATUS_USER_ID).orElse(null));
             userRepository.save(user1);
             log.info(user1 + " saved to database.");
@@ -77,7 +82,7 @@ public class LoadDatabase {
             user2.setEmail("dev2@dev.dev");
             user2.setFirstName("dev2");
             user2.setLastName("dev2");
-            user2.setPassword("dev2");
+            user2.setPassword(passwordEncoder.encode("dev2"));
             user2.setRoleStatus(roleStatusRepository.findById(Constants.ROLE_STATUS_USER_ID).orElse(null));
             userRepository.save(user2);
             log.info(user2 + " saved to database.");

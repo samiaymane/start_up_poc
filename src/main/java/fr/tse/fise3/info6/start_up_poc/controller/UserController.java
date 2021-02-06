@@ -1,23 +1,41 @@
 package fr.tse.fise3.info6.start_up_poc.controller;
 
 import fr.tse.fise3.info6.start_up_poc.domain.Project;
+import fr.tse.fise3.info6.start_up_poc.domain.RoleStatus;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
 import fr.tse.fise3.info6.start_up_poc.service.UserService;
 import fr.tse.fise3.info6.start_up_poc.utils.ChangeManagerAction;
 import fr.tse.fise3.info6.start_up_poc.utils.ChangeRoleAction;
 import fr.tse.fise3.info6.start_up_poc.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.relation.Role;
 import javax.validation.Valid;
+import java.nio.file.AccessDeniedException;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 3600, methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.PATCH, RequestMethod.DELETE})
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
 
     @Autowired
     UserService userService;
+
+    @GetMapping("/isAdmin")
+    String SecurityOk(@AuthenticationPrincipal User user) throws AccessDeniedException {
+        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
+
+        if (!user.getRoleStatus().equals(adminRole)){
+            throw new AccessDeniedException(null);
+        }
+
+        return "All good ! ";
+    }
 
     @GetMapping("/users/all")
     List<User> findAllUsers(){
@@ -52,7 +70,13 @@ public class UserController {
     }
 
     @PatchMapping("/users/{id}/changeRole")
-    User changeUserRole(@RequestBody ChangeRoleAction changeRoleAction, @PathVariable Long id){
+    User changeUserRole(@RequestBody ChangeRoleAction changeRoleAction, @PathVariable Long id, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
+        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
+
+        if (!currentUser.getRoleStatus().equals(adminRole)){
+            throw new AccessDeniedException(null);
+        }
+
         User user = this.userService.findUser(id);
 
         if (Constants.UPGRADE_ACTION.equals(changeRoleAction.getAction())){
@@ -69,24 +93,52 @@ public class UserController {
     }
 
     @PatchMapping("/users/{id}/changeManager")
-    User affectUserToManager(@RequestBody ChangeManagerAction changeManagerAction, @PathVariable Long id){
+    User affectUserToManager(@RequestBody ChangeManagerAction changeManagerAction, @PathVariable Long id, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
+
+        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
+
+        if (!currentUser.getRoleStatus().equals(adminRole)){
+            throw new AccessDeniedException(null);
+        }
+
         User user = this.userService.findUser(id);
         User manager = this.userService.findUser(changeManagerAction.getId());
         return this.userService.affectUserToManager(user, manager);
     }
 
     @PostMapping("/users")
-    User createUser(@RequestBody @Valid User user){
-        return this.userService.createUser(user);
+    User createUser(@RequestBody @Valid User user, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
+
+        RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
+
+        if (!currentUser.getRoleStatus().equals(managerRole)){
+            throw new AccessDeniedException(null);
+        }
+        this.userService.createUser(user);
+        return this.userService.affectUserToManager(user, currentUser);
     }
 
     @PostMapping("/users/admin")
-    User createAdmin(@RequestBody @Valid User admin){
+    User createAdmin(@RequestBody @Valid User admin, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
+
+        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
+
+        if (!currentUser.getRoleStatus().equals(adminRole)){
+            throw new AccessDeniedException(null);
+        }
+
         return this.userService.createAdmin(admin);
     }
 
     @DeleteMapping("/users/{id}")
-    void deleteUser(@PathVariable Long id){
+    void deleteUser(@PathVariable Long id, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
+
+        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
+
+        if (!currentUser.getRoleStatus().equals(adminRole)){
+            throw new AccessDeniedException(null);
+        }
+
         User user = this.userService.findUser(id);
         this.userService.deleteUser(user);
     }
