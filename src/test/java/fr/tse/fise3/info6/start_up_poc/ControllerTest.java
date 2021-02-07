@@ -1,40 +1,31 @@
 package fr.tse.fise3.info6.start_up_poc;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-
-import javax.servlet.http.Cookie;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import javax.servlet.http.HttpSession;
+import java.util.Locale;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ControllerTest {
 
     @Autowired
     protected MockMvc mvc;
 
-    protected String email;
+    protected HttpSession session;
 
-    protected void loginUsing(String email) throws Exception {
-        this.email = email;
+    protected void login(String email, String password) throws Exception {
+        this.session = this.mvc.perform(post("/login").param("username", email).param("password", password))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getRequest()
+                .getSession();
     }
 
-    protected void logout(){
-        this.email = null;
+    protected void logout() throws Exception {
+        this.mvc.perform(get("/logout").session((MockHttpSession)session).locale(Locale.ENGLISH));
+        this.session = null;
     }
-
-    protected ResultActions getAction(String path) throws Exception {
-        if(this.email != null)
-            return this.mvc.perform(get(path).with(user(this.email)));
-        else{
-            return this.mvc.perform(get(path));
-        }
-    }
-
 
 }

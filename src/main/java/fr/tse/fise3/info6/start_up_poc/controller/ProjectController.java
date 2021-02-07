@@ -9,14 +9,24 @@ import fr.tse.fise3.info6.start_up_poc.service.UserService;
 import fr.tse.fise3.info6.start_up_poc.utils.AddLogAction;
 import fr.tse.fise3.info6.start_up_poc.utils.AddUserAction;
 import fr.tse.fise3.info6.start_up_poc.utils.Constants;
+import fr.tse.fise3.info6.start_up_poc.utils.LogPDFExporter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 @RestController
@@ -196,6 +206,57 @@ public class ProjectController {
         }
 
         return this.projectService.affectUserToProject(project,user);
+    }
+
+    @GetMapping("/exportPDF/{id}")
+    ResponseEntity<InputStreamResource> getPDF(@PathVariable Long id, @AuthenticationPrincipal User currentUser) throws IOException {
+
+        RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
+
+        if (!currentUser.getRoleStatus().equals(managerRole)){
+            throw new AccessDeniedException("Current user must have manager credentials.");
+        }
+
+        User user = this.userService.findUser(id);
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        LogPDFExporter logPDFExporter = new LogPDFExporter(user,this.projectService.findLogsForUser(user));
+        ByteArrayInputStream bis = logPDFExporter.export();
+
+        var headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=report.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
+    }
+
+    @GetMapping("/exportPDF")
+    ResponseEntity<InputStreamResource> getPDF(@AuthenticationPrincipal User currentUser) throws IOException {
+
+        RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_USER_ID);
+
+        if (!currentUser.getRoleStatus().equals(managerRole)){
+            throw new AccessDeniedException("Current user must have basic user credentials.");
+        }
+
+        User foundUser = this.userService.findUser(currentUser.getId());
+
+        LogPDFExporter logPDFExporter = new LogPDFExporter(foundUser,this.projectService.findLogsForUser(foundUser));
+        ByteArrayInputStream bis = logPDFExporter.export();
+
+        var headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=report.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
     }
 
 }

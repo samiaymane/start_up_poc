@@ -7,12 +7,13 @@ import fr.tse.fise3.info6.start_up_poc.service.UserService;
 import fr.tse.fise3.info6.start_up_poc.utils.ChangeManagerAction;
 import fr.tse.fise3.info6.start_up_poc.utils.ChangeRoleAction;
 import fr.tse.fise3.info6.start_up_poc.utils.Constants;
+import fr.tse.fise3.info6.start_up_poc.utils.LogPDFExporter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;

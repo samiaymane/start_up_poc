@@ -1,14 +1,16 @@
 package fr.tse.fise3.info6.start_up_poc.utils;
 
 import java.awt.Color;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.time.Duration;
-import java.util.Set;
+import java.util.Collection;
 
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 import fr.tse.fise3.info6.start_up_poc.domain.Log;
-import fr.tse.fise3.info6.start_up_poc.domain.Project;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,9 +19,9 @@ public class LogPDFExporter {
 
     private User user;
 
-    private Set<Log> logs;
+    private Collection<Log> logs;
 
-    public LogPDFExporter(User user, Set<Log> logs) {
+    public LogPDFExporter(User user, Collection<Log> logs) {
         this.user = user;
         this.logs = logs;
     }
@@ -58,9 +60,10 @@ public class LogPDFExporter {
         return countHours/60.0;
     }
 
-    public void export(HttpServletResponse response) throws DocumentException, IOException {
+    public ByteArrayInputStream export() throws DocumentException, IOException {
         Document document = new Document(PageSize.A4);
-        PdfWriter.getInstance(document, response.getOutputStream());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, out);
 
         document.open();
         Font font = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
@@ -93,5 +96,6 @@ public class LogPDFExporter {
 
         document.close();
 
+        return new ByteArrayInputStream(out.toByteArray());
     }
 }
