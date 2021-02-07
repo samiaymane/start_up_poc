@@ -7,16 +7,15 @@ import fr.tse.fise3.info6.start_up_poc.service.UserService;
 import fr.tse.fise3.info6.start_up_poc.utils.ChangeManagerAction;
 import fr.tse.fise3.info6.start_up_poc.utils.ChangeRoleAction;
 import fr.tse.fise3.info6.start_up_poc.utils.Constants;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
-import javax.management.relation.Role;
 import javax.validation.Valid;
-import java.nio.file.AccessDeniedException;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -26,15 +25,21 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @GetMapping("/hello")
+    User hello(@AuthenticationPrincipal User currentUser){
+        User foundUser = this.userService.findUser(currentUser.getId());
+        return foundUser;
+    }
+
     @GetMapping("/isAdmin")
-    String SecurityOk(@AuthenticationPrincipal User user) throws AccessDeniedException {
+    String securityOk(@AuthenticationPrincipal User user) throws AccessDeniedException {
         RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
 
         if (!user.getRoleStatus().equals(adminRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have admin credentials.");
         }
 
-        return "All good ! ";
+        return "All good!";
     }
 
     @GetMapping("/users/all")
@@ -54,19 +59,32 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     User findUserById(@PathVariable Long id){
-        return this.userService.findUser(id);
+        User user = this.userService.findUser(id);
+        if(user != null){
+            return user;
+        }else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
     }
 
     @GetMapping("/users/{id}/subordinates")
     List<User> findSubordinatesForUser(@PathVariable Long id){
         User user = this.userService.findUser(id);
-        return this.userService.findSubordinatesForManager(user);
+        if(user != null){
+            return this.userService.findSubordinatesForManager(user);
+        }else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
     }
 
     @GetMapping("/users/{id}/projects")
     List<Project> findProjectsForUser(@PathVariable Long id){
         User user = this.userService.findUser(id);
-        return this.userService.findProjectsForUser(user);
+        if(user != null){
+            return this.userService.findProjectsForUser(user);
+        }else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
     }
 
     @PatchMapping("/users/{id}/changeRole")
@@ -74,10 +92,14 @@ public class UserController {
         RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
 
         if (!currentUser.getRoleStatus().equals(adminRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have admin credentials.");
         }
 
         User user = this.userService.findUser(id);
+
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
 
         if (Constants.UPGRADE_ACTION.equals(changeRoleAction.getAction())){
             user = this.userService.upgradeUser(user);
@@ -86,7 +108,7 @@ public class UserController {
             user = this.userService.downgradeUser(user);
         }
         else {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Bad Action.");
         }
 
         return user;
@@ -98,11 +120,21 @@ public class UserController {
         RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
 
         if (!currentUser.getRoleStatus().equals(adminRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have admin credentials.");
         }
 
         User user = this.userService.findUser(id);
+
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
         User manager = this.userService.findUser(changeManagerAction.getId());
+
+        if(manager == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Manager not found");
+        }
+
         return this.userService.affectUserToManager(user, manager);
     }
 
@@ -112,19 +144,20 @@ public class UserController {
         RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
 
         if (!currentUser.getRoleStatus().equals(managerRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have manager credentials.");
         }
         this.userService.createUser(user);
-        return this.userService.affectUserToManager(user, currentUser);
+        User manager = this.userService.findUser(currentUser.getId());
+        return this.userService.affectUserToManager(user, manager);
     }
 
     @PostMapping("/users/admin")
     User createAdmin(@RequestBody @Valid User admin, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
 
-        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
+        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
 
         if (!currentUser.getRoleStatus().equals(adminRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have admin credentials.");
         }
 
         return this.userService.createAdmin(admin);
@@ -133,13 +166,16 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     void deleteUser(@PathVariable Long id, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
 
-        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
+        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
 
         if (!currentUser.getRoleStatus().equals(adminRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have admin credentials.");
         }
 
         User user = this.userService.findUser(id);
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         this.userService.deleteUser(user);
     }
 

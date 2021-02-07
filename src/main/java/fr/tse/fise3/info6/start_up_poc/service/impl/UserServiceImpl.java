@@ -104,16 +104,16 @@ public class UserServiceImpl implements UserService {
         if(roleStatus != null){
 
             if(roleStatus.equals(managerStatus)){
-                throw new IllegalStateException();
+                throw new IllegalStateException("Can not upgrade manager.");
             }
             else if(roleStatus.equals(userStatus)){
                 result = managerStatus;
             }
             else if(roleStatus.equals(adminStatus)){
-                throw new IllegalStateException();
+                throw new IllegalStateException("Can not upgrade admin.");
             }
         }else{
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("No role is assigned to this user.");
         }
 
         return result;
@@ -132,13 +132,13 @@ public class UserServiceImpl implements UserService {
                result = userStatus;
             }
             else if(roleStatus.equals(userStatus)){
-                throw new IllegalStateException();
+                throw new IllegalStateException("Can not downgrade user.");
             }
             else if(roleStatus.equals(adminStatus)){
-                throw new IllegalStateException();
+                throw new IllegalStateException("Can not downgrade admin.");
             }
         }else{
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("No role is assigned to this user.");
         }
 
         return result;
@@ -198,7 +198,7 @@ public class UserServiceImpl implements UserService {
         RoleStatus userStatus = this.findRoleStatus(Constants.ROLE_STATUS_USER_ID);
 
         if(!user.getRoleStatus().equals(userStatus) || !manager.getRoleStatus().equals(managerStatus)){
-            throw new IllegalStateException();
+            throw new IllegalStateException("Bad Role Correspondence.");
         }else{
             manager.addSubordinate(user);
             return this.userRepository.save(user);

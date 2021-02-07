@@ -1,6 +1,7 @@
 package fr.tse.fise3.info6.start_up_poc.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -35,11 +36,13 @@ public class User implements UserDetails {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnoreProperties({"subordinates","manager"})
     @OneToMany(mappedBy = "manager")
     private Set<User> subordinates;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnoreProperties({"subordinates","manager"})
     @ManyToOne
     private User manager;
 

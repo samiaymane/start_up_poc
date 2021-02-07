@@ -71,7 +71,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project oldProject = log.getProject();
 
         if(oldProject != null){
-            throw new IllegalStateException();
+            throw new IllegalStateException("Log is already assigned to another project.");
         }
         project.addLog(log);
         this.logRepository.save(log);
@@ -88,7 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
         User oldUser = foundLog.getUser();
 
         if(oldUser != null){
-            throw new IllegalStateException();
+            throw new IllegalStateException("Log is already assigned to another user.");
         }
         foundLog.setUser(foundUser);
         return foundLog;

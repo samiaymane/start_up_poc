@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.security.access.AccessDeniedException;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 @ControllerAdvice
@@ -35,13 +33,36 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         Collections.sort(errors, Comparator.comparing(ValidationError::getField));
 
         body.put("errors", errors);
+        body.put("path",request.getContextPath());
 
         return new ResponseEntity<>(body, headers, status);
 	}
 
     @ExceptionHandler(value = AccessDeniedException.class)
-    public void handleConflict(HttpServletResponse response) throws IOException {
-        response.sendError(403, "");
+    public final ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+
+	    Map<String, Object> body = new LinkedHashMap<>();
+
+        body.put("timestamp", new Date());
+        body.put("status", HttpStatus.FORBIDDEN.value());
+        body.put("error", "Forbidden");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getContextPath());
+
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(value = IllegalStateException.class)
+    public final ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex, WebRequest request) {
+
+        Map<String, Object> body = new LinkedHashMap<>();
+
+        body.put("timestamp", new Date());
+        body.put("status", HttpStatus.UNAUTHORIZED.value());
+        body.put("error", "Unauthorized");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getContextPath());
+
+        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+    }
 }

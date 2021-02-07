@@ -16,6 +16,7 @@ public class Log {
     private LocalDateTime end;
 
     @OneToOne
+    @JsonIgnoreProperties({"subordinates","manager"})
     private User user;
 
     @ManyToOne

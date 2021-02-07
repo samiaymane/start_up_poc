@@ -10,12 +10,13 @@ import fr.tse.fise3.info6.start_up_poc.utils.AddLogAction;
 import fr.tse.fise3.info6.start_up_poc.utils.AddUserAction;
 import fr.tse.fise3.info6.start_up_poc.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -35,23 +36,42 @@ public class ProjectController {
 
     @GetMapping("/projects/{id}")
     Project findProject(@PathVariable Long id){
-        return this.projectService.findProject(id);
+        Project project = this.projectService.findProject(id);
+        if(project == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }else{
+            return project;
+        }
+
     }
 
     @GetMapping("/logs/{id}")
     Log findLog(@PathVariable Long id){
-        return this.projectService.findLog(id);
+        Log log =  this.projectService.findLog(id);
+        if(log == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Log not found");
+        }else{
+            return log;
+        }
     }
 
     @GetMapping("/project/{id}/logs")
     List<Log> findLogsForProject(@PathVariable Long id){
         Project project = this.projectService.findProject(id);
+
+        if(project == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }
+
         return this.projectService.findLogsForProject(project);
     }
 
     @GetMapping("/users/{id}/logs")
     List<Log> findLogsForUser(@PathVariable Long id){
         User user = this.userService.findUser(id);
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         return this.projectService.findLogsForUser(user);
     }
 
@@ -61,7 +81,7 @@ public class ProjectController {
         RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
 
         if (!currentUser.getRoleStatus().equals(managerRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have manager credentials.");
         }
 
         this.projectService.createProject(project);
@@ -75,7 +95,7 @@ public class ProjectController {
         RoleStatus userRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_USER_ID);
 
         if (!currentUser.getRoleStatus().equals(userRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have basic user credentials.");
         }
 
         this.projectService.createLog(log);
@@ -88,13 +108,17 @@ public class ProjectController {
         RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
 
         if (!currentUser.getRoleStatus().equals(managerRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have manager credentials.");
         }
 
         Project project = this.projectService.findProject(id);
 
+        if(project == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }
+
         if( !this.userService.findProjectsForUser(currentUser).contains(project)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Project not assigned to current manager.");
         }
 
         this.projectService.deleteProject(project);
@@ -106,13 +130,17 @@ public class ProjectController {
         RoleStatus userRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_USER_ID);
 
         if (!currentUser.getRoleStatus().equals(userRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have manager credentials.");
         }
 
         Log log = this.projectService.findLog(id);
 
+        if(log == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Log not found");
+        }
+
         if (!this.projectService.findLogsForUser(currentUser).contains(log)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("User not assigned to current manager.");
         }
 
         this.projectService.deleteLog(log);
@@ -124,11 +152,21 @@ public class ProjectController {
         RoleStatus userRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_USER_ID);
 
         if (!currentUser.getRoleStatus().equals(userRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have basic user credentials.");
         }
 
         Project project = this.projectService.findProject(id);
+
+        if(project == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }
+
         Log log = this.projectService.findLog(addLogAction.getId());
+
+        if(project == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "log not found");
+        }
+
         return this.projectService.affectLogToProject(project,log);
     }
 
@@ -138,16 +176,25 @@ public class ProjectController {
         RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
 
         if (!currentUser.getRoleStatus().equals(managerRole)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("Current user must have manager credentials.");
         }
 
         Project project = this.projectService.findProject(id);
 
+        if(project == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }
+
         if( !this.userService.findProjectsForUser(currentUser).contains(project)){
-            throw new AccessDeniedException(null);
+            throw new AccessDeniedException("User not assigned to current manager.");
         }
 
         User user = this.userService.findUser(addUserAction.getId());
+
+        if(project == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
         return this.projectService.affectUserToProject(project,user);
     }
 

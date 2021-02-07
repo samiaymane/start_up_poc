@@ -26,12 +26,13 @@ public class Project {
     private LocalDate creationDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JsonIgnoreProperties("projects")
+    @JsonIgnoreProperties({"subordinates","manager","projects"})
     @EqualsAndHashCode.Exclude
     @NotEmpty(message = "Developers cannot be empty")
     private Set<User> users;
 
     @OneToMany(mappedBy="project", cascade={CascadeType.ALL}, orphanRemoval=true)
+    @JsonIgnoreProperties({"user"})
     @EqualsAndHashCode.Exclude
     private Set<Log> logs;
 
