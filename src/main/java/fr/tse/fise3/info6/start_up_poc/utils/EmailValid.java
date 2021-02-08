@@ -13,7 +13,6 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Email(message="Please provide a valid email address")
 @Pattern(regexp=".+@.+\\..+", message="Please provide a valid email address")
 @java.lang.annotation.Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
 @Retention(RUNTIME)

@@ -28,24 +28,20 @@ public class User implements UserDetails {
 
     @NotNull(message = "First name cannot be null")
     @NotEmpty(message = "First name cannot be empty")
-    @NotBlank(message = "First name cannot be blank.")
     private String firstName;
 
     @NotNull(message = "Last Name cannot be null")
     @NotEmpty(message = "Last Name cannot be empty")
-    @NotBlank(message = "Last Name cannot be blank.")
     private String lastName;
 
     @NotNull(message = "Email cannot be null")
     @NotEmpty(message = "Email cannot be empty")
-    @NotBlank(message = "Email cannot be blank.")
     @EmailValid
     private String email;
 
     @NotNull(message = "Password cannot be null")
     @NotEmpty(message = "Title cannot be empty")
-    @NotBlank(message = "Title cannot be blank.")
-    @Size(min = 6)
+    @Size(min = 6, message = "Password should be at least 6 characters long.")
     private String password;
 
     @ManyToOne
