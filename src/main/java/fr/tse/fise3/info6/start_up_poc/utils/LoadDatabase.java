@@ -30,14 +30,14 @@ public class LoadDatabase {
             initRoleStatus(roleStatusRepository);
 
             Project project1 = new Project();
-            project1.setTitle("project1");
-            project1.setDescription("description for project1.");
+            project1.setTitle("Projet intégré STARTUP POC");
+            project1.setDescription("Une application pour gérer les temps passés sur un projet.");
             projectRepository.save(project1);
             log.info(project1 + " saved to database.");
 
             Project project2 = new Project();
-            project2.setTitle("project2");
-            project2.setDescription("description for project2.");
+            project2.setTitle("Kanban");
+            project2.setDescription("Une application pour gérer des tasks de développeurs.");
             projectRepository.save(project2);
             log.info(project2 + " saved to database.");
 

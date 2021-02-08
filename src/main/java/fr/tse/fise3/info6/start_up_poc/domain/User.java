@@ -2,6 +2,7 @@ package fr.tse.fise3.info6.start_up_poc.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import fr.tse.fise3.info6.start_up_poc.utils.EmailValid;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -10,6 +11,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -20,9 +25,27 @@ import java.util.Set;
 public class User implements UserDetails {
 
     private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
+
+    @NotNull(message = "First name cannot be null")
+    @NotEmpty(message = "First name cannot be empty")
+    @NotBlank(message = "First name cannot be blank.")
     private String firstName;
+
+    @NotNull(message = "Last Name cannot be null")
+    @NotEmpty(message = "Last Name cannot be empty")
+    @NotBlank(message = "Last Name cannot be blank.")
     private String lastName;
+
+    @NotNull(message = "Email cannot be null")
+    @NotEmpty(message = "Email cannot be empty")
+    @NotBlank(message = "Email cannot be blank.")
+    @EmailValid
     private String email;
+
+    @NotNull(message = "Password cannot be null")
+    @NotEmpty(message = "Title cannot be empty")
+    @NotBlank(message = "Title cannot be blank.")
+    @Size(min = 6)
     private String password;
 
     @ManyToOne
@@ -91,12 +114,7 @@ public class User implements UserDetails {
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        GrantedAuthority grantedAuthority = new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return roleStatus.getRoleTitle();
-            }
-        };
+        GrantedAuthority grantedAuthority = (GrantedAuthority) () -> roleStatus.getRoleTitle();
         return List.of(grantedAuthority);
     }
 

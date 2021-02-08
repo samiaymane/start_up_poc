@@ -70,7 +70,7 @@ public class LogPDFExporter {
         font.setSize(18);
         font.setColor(Color.BLUE);
 
-        Paragraph p = new Paragraph("List of logs", font);
+        Paragraph p = new Paragraph("List of logs for "+this.user.getLastName()+" "+this.user.getFirstName(), font);
         p.setAlignment(Paragraph.ALIGN_CENTER);
 
         document.add(p);

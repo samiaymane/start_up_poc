@@ -13,6 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -139,11 +141,25 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Log> findLogsForUser(User user) {
-        List<Log> logs = logRepository.findAll(Sort.by("start").descending())
-                .stream()
-                .filter(log -> user.equals(log.getUser()))
-                .collect(Collectors.toList());
+    public List<Log> findLogsForUser(User user, LocalDate startDate, LocalDate endDate) {
+        List<Log> logs = logRepository.findAll(Sort.by("start").descending());
+        if (startDate == null || endDate == null){
+            logs = logs.stream()
+                    .filter(log -> user.equals(log.getUser()))
+                    .collect(Collectors.toList());
+        }else{
+            logs = logs.stream()
+                    .filter(log -> user.equals(log.getUser())
+                            && log.getStart().isAfter(ChronoLocalDateTime.from(startDate))
+                            && log.getEnd().isBefore(ChronoLocalDateTime.from(endDate)))
+                    .collect(Collectors.toList());
+        }
         return logs;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Log> findLogsForUser(User user){
+        return findLogsForUser(user, null, null);
     }
 }

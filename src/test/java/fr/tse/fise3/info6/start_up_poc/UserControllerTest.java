@@ -9,19 +9,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
 
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-
-import javax.servlet.http.HttpSession;
 import java.util.Locale;
 
 @RunWith(SpringRunner.class)
@@ -41,7 +37,7 @@ public class UserControllerTest extends ControllerTest{
         Assert.assertNotNull(this.session);
 
         this.mvc.perform(get("/isAdmin")
-                .session((MockHttpSession)session).locale(Locale.ENGLISH))
+                .session((MockHttpSession)this.session).locale(Locale.ENGLISH))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
                 .andExpect(content().string("All good!"));

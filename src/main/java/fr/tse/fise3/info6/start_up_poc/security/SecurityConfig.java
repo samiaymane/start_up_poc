@@ -1,6 +1,11 @@
 package fr.tse.fise3.info6.start_up_poc.security;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import fr.tse.fise3.info6.start_up_poc.domain.User;
 import fr.tse.fise3.info6.start_up_poc.service.UserService;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +22,17 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -44,8 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf()
                 .disable()
                 .exceptionHandling()
-                .authenticationEntryPoint(new Http403ForbiddenEntryPoint() {
-                })
+                .authenticationEntryPoint(new Http403ForbiddenEntryPoint() {})
                 .and()
                 .authenticationProvider(getProvider())
                 .formLogin()
@@ -71,6 +81,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         public void onAuthenticationSuccess(HttpServletRequest request,
                                             HttpServletResponse response, Authentication authentication)
                 throws IOException, ServletException {
+            PrintWriter out = response.getWriter();
+            ObjectMapper mapper = new ObjectMapper();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            Cookie session =
+                    Arrays.stream(request.getCookies()).filter(x -> x.getName().equals("JSESSIONID"))
+                            .findFirst().orElse(null);
+            out.print(mapper.writeValueAsString(session));
+            out.flush();
             response.setStatus(HttpServletResponse.SC_OK);
         }
     }

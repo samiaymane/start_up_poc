@@ -16,7 +16,8 @@ public class ControllerTest {
     protected HttpSession session;
 
     protected void login(String email, String password) throws Exception {
-        this.session = this.mvc.perform(post("/login").param("username", email).param("password", password))
+        this.session = this.mvc.perform(post("/login").param("username",
+                email).param("password", password))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getRequest()
@@ -24,7 +25,8 @@ public class ControllerTest {
     }
 
     protected void logout() throws Exception {
-        this.mvc.perform(get("/logout").session((MockHttpSession)session).locale(Locale.ENGLISH));
+        this.mvc.perform(get("/logout").session((MockHttpSession)session)
+                .locale(Locale.ENGLISH));
         this.session = null;
     }
 

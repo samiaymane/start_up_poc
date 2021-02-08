@@ -6,10 +6,7 @@ import fr.tse.fise3.info6.start_up_poc.domain.RoleStatus;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
 import fr.tse.fise3.info6.start_up_poc.service.ProjectService;
 import fr.tse.fise3.info6.start_up_poc.service.UserService;
-import fr.tse.fise3.info6.start_up_poc.utils.AddLogAction;
-import fr.tse.fise3.info6.start_up_poc.utils.AddUserAction;
-import fr.tse.fise3.info6.start_up_poc.utils.Constants;
-import fr.tse.fise3.info6.start_up_poc.utils.LogPDFExporter;
+import fr.tse.fise3.info6.start_up_poc.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -21,12 +18,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
 @RestController
@@ -209,7 +203,8 @@ public class ProjectController {
     }
 
     @GetMapping("/exportPDF/{id}")
-    ResponseEntity<InputStreamResource> getPDF(@PathVariable Long id, @AuthenticationPrincipal User currentUser) throws IOException {
+    ResponseEntity<InputStreamResource> getPDF(@PathVariable Long id, @AuthenticationPrincipal User currentUser,
+                                               @RequestBody ExportPdfAction exportPdfAction) throws IOException {
 
         RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
 
@@ -222,7 +217,8 @@ public class ProjectController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        LogPDFExporter logPDFExporter = new LogPDFExporter(user,this.projectService.findLogsForUser(user));
+        LogPDFExporter logPDFExporter = new LogPDFExporter(user,this.projectService.findLogsForUser(user,
+                exportPdfAction.getStartDate(), exportPdfAction.getEndDate()));
         ByteArrayInputStream bis = logPDFExporter.export();
 
         var headers = new HttpHeaders();
@@ -236,7 +232,8 @@ public class ProjectController {
     }
 
     @GetMapping("/exportPDF")
-    ResponseEntity<InputStreamResource> getPDF(@AuthenticationPrincipal User currentUser) throws IOException {
+    ResponseEntity<InputStreamResource> getPDF(@AuthenticationPrincipal User currentUser,
+                                               @RequestBody ExportPdfAction exportPdfAction) throws IOException {
 
         RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_USER_ID);
 
@@ -246,7 +243,8 @@ public class ProjectController {
 
         User foundUser = this.userService.findUser(currentUser.getId());
 
-        LogPDFExporter logPDFExporter = new LogPDFExporter(foundUser,this.projectService.findLogsForUser(foundUser));
+        LogPDFExporter logPDFExporter = new LogPDFExporter(foundUser,this.projectService.findLogsForUser(foundUser,
+                exportPdfAction.getStartDate(), exportPdfAction.getEndDate()));
         ByteArrayInputStream bis = logPDFExporter.export();
 
         var headers = new HttpHeaders();

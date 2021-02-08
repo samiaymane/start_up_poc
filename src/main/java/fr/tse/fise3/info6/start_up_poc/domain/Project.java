@@ -5,21 +5,22 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@Entity @Table
+@Entity
 public class Project {
 
     private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
 
     @NotNull(message = "Title cannot be null")
     @NotEmpty(message = "Title cannot be empty")
+    @NotBlank(message = "Title cannot be blank.")
     private String title;
 
     private String description;
@@ -28,7 +29,6 @@ public class Project {
     @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnoreProperties({"subordinates","manager","projects"})
     @EqualsAndHashCode.Exclude
-    @NotEmpty(message = "Developers cannot be empty")
     private Set<User> users;
 
     @OneToMany(mappedBy="project", cascade={CascadeType.ALL}, orphanRemoval=true)

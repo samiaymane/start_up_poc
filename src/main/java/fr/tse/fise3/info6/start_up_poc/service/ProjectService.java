@@ -4,6 +4,7 @@ import fr.tse.fise3.info6.start_up_poc.domain.Log;
 import fr.tse.fise3.info6.start_up_poc.domain.Project;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public interface ProjectService {
     public void deleteProject(Project project);
 
     public List<Log> findLogsForProject(Project project);
+
+    public List<Log> findLogsForUser(User user, LocalDate startDate, LocalDate endDate);
 
     public List<Log> findLogsForUser(User user);
 
