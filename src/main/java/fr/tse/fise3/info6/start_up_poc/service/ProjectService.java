@@ -5,7 +5,6 @@ import fr.tse.fise3.info6.start_up_poc.domain.Project;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 
 public interface ProjectService {

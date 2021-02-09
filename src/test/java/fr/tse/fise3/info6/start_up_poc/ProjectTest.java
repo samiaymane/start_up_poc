@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
@@ -74,9 +75,13 @@ public class ProjectTest {
         log2.setEnd(LocalDateTime.of(2017, 1, 14, 15, 16));
         this.projectService.createLog(log2);
 
-        Assert.assertEquals(0,this.projectService.findLogsForUser(user1).size());
+        Assert.assertEquals(0,this.projectService.findLogsForUser(user1,
+                LocalDate.of(2016, 1, 1),
+                LocalDate.of(2018, 1, 1)).size());
         projectService.affectLogToUser(log1, user1);
-        Assert.assertEquals(1,this.projectService.findLogsForUser(user1).size());
+        Assert.assertEquals(1,this.projectService.findLogsForUser(user1,
+                LocalDate.of(2016, 1, 1),
+                LocalDate.of(2018, 1, 1)).size());
         Assert.assertEquals(0,this.projectService.findLogsForUser(user2).size());
         projectService.affectLogToUser(log2, user2);
         Assert.assertEquals(1,this.projectService.findLogsForUser(user2).size());

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -12,7 +14,11 @@ import java.time.LocalDateTime;
 public class Log {
 
     private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
+
+    @NotNull(message = "Start Date cannot be null")
     private LocalDateTime start;
+
+    @NotNull(message = "End Date cannot be null")
     private LocalDateTime end;
 
     @OneToOne

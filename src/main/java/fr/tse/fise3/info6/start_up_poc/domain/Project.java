@@ -20,7 +20,6 @@ public class Project {
 
     @NotNull(message = "Title cannot be null")
     @NotEmpty(message = "Title cannot be empty")
-    @NotBlank(message = "Title cannot be blank.")
     private String title;
 
     private String description;

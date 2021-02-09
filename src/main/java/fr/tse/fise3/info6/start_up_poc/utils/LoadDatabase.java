@@ -4,6 +4,7 @@ import fr.tse.fise3.info6.start_up_poc.dao.LogRepository;
 import fr.tse.fise3.info6.start_up_poc.dao.ProjectRepository;
 import fr.tse.fise3.info6.start_up_poc.dao.RoleStatusRepository;
 import fr.tse.fise3.info6.start_up_poc.dao.UserRepository;
+import fr.tse.fise3.info6.start_up_poc.domain.Log;
 import fr.tse.fise3.info6.start_up_poc.domain.Project;
 import fr.tse.fise3.info6.start_up_poc.domain.RoleStatus;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
@@ -14,6 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
 
 @Configuration
 @Slf4j
@@ -86,6 +89,22 @@ public class LoadDatabase {
             user2.setRoleStatus(roleStatusRepository.findById(Constants.ROLE_STATUS_USER_ID).orElse(null));
             userRepository.save(user2);
             log.info(user2 + " saved to database.");
+
+            for(int i=1; i<=10; i++){
+                Log log1 = new Log();
+                log1.setStart(LocalDateTime.of(2021, 1, i, 8, 0));
+                log1.setEnd(LocalDateTime.of(2021, 1, i+2, 18, 0));
+                log1.setUser(user1);
+                log1.setProject(project1);
+                logRepository.save(log1);
+
+                Log log2 = new Log();
+                log2.setStart(LocalDateTime.of(2021, 1, i+1, 8, 0));
+                log2.setEnd(LocalDateTime.of(2021, 1, i+5, 18, 0));
+                log2.setUser(user2);
+                log2.setProject(project2);
+                logRepository.save(log2);
+            }
 
             log.info("All seem to be OK for the app initialization!");
         };

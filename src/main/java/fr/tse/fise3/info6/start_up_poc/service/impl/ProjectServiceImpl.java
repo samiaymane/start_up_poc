@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -142,7 +143,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public List<Log> findLogsForUser(User user, LocalDate startDate, LocalDate endDate) {
-        List<Log> logs = logRepository.findAll(Sort.by("start").descending());
+        List<Log> logs = logRepository.findAll(Sort.by("start").ascending());
         if (startDate == null || endDate == null){
             logs = logs.stream()
                     .filter(log -> user.equals(log.getUser()))
@@ -150,8 +151,8 @@ public class ProjectServiceImpl implements ProjectService {
         }else{
             logs = logs.stream()
                     .filter(log -> user.equals(log.getUser())
-                            && log.getStart().isAfter(ChronoLocalDateTime.from(startDate))
-                            && log.getEnd().isBefore(ChronoLocalDateTime.from(endDate)))
+                            && log.getStart().isAfter(startDate.atStartOfDay())
+                            && log.getEnd().isBefore(endDate.atStartOfDay()))
                     .collect(Collectors.toList());
         }
         return logs;

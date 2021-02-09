@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Duration;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 import com.lowagie.text.*;
@@ -20,6 +21,7 @@ public class LogPDFExporter {
     private User user;
 
     private Collection<Log> logs;
+
 
     public LogPDFExporter(User user, Collection<Log> logs) {
         this.user = user;
@@ -49,11 +51,12 @@ public class LogPDFExporter {
     }
 
     private Double writeTableData(PdfPTable table) {
-        Long countHours = Long.valueOf(0);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        Long countHours = 0L;
         for (Log log : logs) {
             table.addCell(String.valueOf(log.getId()));
-            table.addCell(String.valueOf(log.getStart()));
-            table.addCell(String.valueOf(log.getEnd()));
+            table.addCell(log.getStart().format(formatter));
+            table.addCell(log.getEnd().format(formatter));
             table.addCell(log.getProject().getTitle());
             countHours += Duration.between(log.getStart(),log.getEnd()).toMinutes();
         }
@@ -75,9 +78,9 @@ public class LogPDFExporter {
 
         document.add(p);
 
-        PdfPTable table = new PdfPTable(5);
+        PdfPTable table = new PdfPTable(4);
         table.setWidthPercentage(100f);
-        table.setWidths(new float[] {1.5f, 3.5f, 3.0f, 3.0f, 1.5f});
+        table.setWidths(new float[] {1.5f, 3.5f, 3.5f, 4.0f});
         table.setSpacingBefore(10);
 
         writeTableHeader(table);
