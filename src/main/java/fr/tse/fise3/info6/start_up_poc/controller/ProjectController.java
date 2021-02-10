@@ -59,7 +59,7 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/project/{id}/logs")
+    @GetMapping("/projects/{id}/logs")
     List<Log> findLogsForProject(@PathVariable Long id){
         Project project = this.projectService.findProject(id);
 
@@ -93,26 +93,13 @@ public class ProjectController {
         return this.projectService.affectUserToProject(project,currentUser);
     }
 
-    @PostMapping("/logs")
-    Log createLog(@RequestBody @Valid Log log, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
+    @PostMapping("/projects/{id}/logs")
+    Log createLog(@RequestBody @Valid Log log, @PathVariable Long id, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
 
         RoleStatus userRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_USER_ID);
 
         if (!currentUser.getRoleStatus().equals(userRole)){
             throw new AccessDeniedException("Current user must have basic user credentials.");
-        }
-
-        this.projectService.createLog(log);
-        return this.projectService.affectLogToUser(log, currentUser);
-    }
-
-    @DeleteMapping("/projects/{id}")
-    void deleteProject(@PathVariable Long id, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
-
-        RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
-
-        if (!currentUser.getRoleStatus().equals(managerRole)){
-            throw new AccessDeniedException("Current user must have manager credentials.");
         }
 
         Project project = this.projectService.findProject(id);
@@ -121,7 +108,30 @@ public class ProjectController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
         }
 
-        if( !this.userService.findProjectsForUser(currentUser).contains(project)){
+        this.projectService.createLog(log);
+        this.projectService.affectLogToProject(project,log);
+        return this.projectService.affectLogToUser(log, currentUser);
+    }
+
+    @DeleteMapping("/projects/{id}")
+    void deleteProject(@PathVariable Long id, @AuthenticationPrincipal User currentUser) throws AccessDeniedException {
+
+        RoleStatus managerRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_MANAGER_ID);
+        RoleStatus adminRole = this.userService.findRoleStatus(Constants.ROLE_STATUS_ADMIN_ID);
+
+        if (!currentUser.getRoleStatus().equals(managerRole) &&
+                !currentUser.getRoleStatus().equals(adminRole)){
+            throw new AccessDeniedException("Current user must have manager or admin credentials.");
+        }
+
+        Project project = this.projectService.findProject(id);
+
+        if(project == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }
+
+        if( !this.userService.findProjectsForUser(currentUser).contains(project) &&
+        !currentUser.getRoleStatus().equals(adminRole)){
             throw new AccessDeniedException("Project not assigned to current manager.");
         }
 

@@ -6,6 +6,7 @@ import fr.tse.fise3.info6.start_up_poc.domain.Log;
 import fr.tse.fise3.info6.start_up_poc.domain.Project;
 import fr.tse.fise3.info6.start_up_poc.domain.RoleStatus;
 import fr.tse.fise3.info6.start_up_poc.domain.User;
+import fr.tse.fise3.info6.start_up_poc.service.ProjectService;
 import fr.tse.fise3.info6.start_up_poc.service.UserService;
 import fr.tse.fise3.info6.start_up_poc.utils.Constants;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RoleStatusRepository roleStatusRepository;
+
+    @Autowired
+    private ProjectService projectService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -221,6 +225,11 @@ public class UserServiceImpl implements UserService {
 
         user = this.findUser(user.getId());
         User manager = user.getManager();
+
+        List<Log> logs = this.projectService.findLogsForUser(user);
+        for(Log log : logs){
+            this.projectService.deleteLog(log);
+        }
 
         if(manager != null){
             user.getManager().removeSubordinate(user);

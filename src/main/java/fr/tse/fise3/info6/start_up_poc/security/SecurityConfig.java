@@ -64,6 +64,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .invalidateHttpSession(true)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/api-docs",
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger",
+                "/favicon.ico").permitAll()
                 .antMatchers("/**").authenticated()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/logout").permitAll()

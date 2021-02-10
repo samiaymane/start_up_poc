@@ -122,6 +122,7 @@ public class ProjectServiceImpl implements ProjectService {
             project.getLogs().remove(log);
         }
         log.setProject(null);
+        log.setUser(null);
         this.logRepository.save(log);
         this.logRepository.delete(log);
     }
