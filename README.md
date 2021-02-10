@@ -5,7 +5,7 @@
   <p align="center">
     API de suivi de temps passé sur des projets d'entreprise.
     <br />
-    <a href="https://localhost:8080/swagger"><strong>Explorer la doc »</strong></a>
+    <a href="#documentation"><strong>Explorer la doc »</strong></a>
   </p>
 </p>
 
@@ -29,6 +29,7 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#documentation">Documentation</a><li>
     <li><a href="#contributing">Contributtion</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -268,6 +269,14 @@ Voici un scénario d'actions pour tester l'api :
    ```
    ```sh
    http://localhost:8080/projects/{{project_id}}
+   ```
+
+<!-- DOCUMENTATION -->
+## Documentation
+
+Plus d'informations sur les routes et les actions possible sur l'api sont disponibles sur l'adresse suivante :
+   ```sh
+   http://localhost:8080/swagger
    ```
 
 <!-- CONTRIBUTING -->
