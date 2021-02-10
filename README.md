@@ -274,7 +274,7 @@ Voici un scénario d'actions pour tester l'api :
 <!-- DOCUMENTATION -->
 ## Documentation
 
-Plus d'informations sur les routes et les actions possible sur l'api sont disponibles sur l'adresse suivante :
+Plus d'informations sur les routes et les actions possibles sur l'api sont disponibles sur l'adresse suivante :
    ```sh
    http://localhost:8080/swagger
    ```
