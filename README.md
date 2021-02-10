@@ -87,9 +87,9 @@ Clone the repo
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Voici une liste d'actions pour tester l'api :
+Voici un scénario d'actions pour tester l'api :
 
-* Se connecter à l'api en tant que manager
+1. Se connecter à l'api en tant que manager
    ```sh
    METHOD : POST
    BODY : x-www-form-urlencoded
@@ -101,28 +101,28 @@ Voici une liste d'actions pour tester l'api :
    username : manager1@dev.dev
    password : manager1
    ```
-* Récupérer l'utilisateur connecté à l'api
+2. Récupérer l'utilisateur connecté à l'api
    ```sh
    METHOD : GET
    ```
    ```sh
    http://localhost:8080/hello
    ```
-* Afficher la liste des users
+3. Afficher la liste des users
    ```sh
    METHOD : GET
    ```
    ```sh
    http://localhost:8080/users/all
    ```
-* Afficher la liste des projets
+4. Afficher la liste des projets
    ```sh
    METHOD : GET
    ```
    ```sh
    http://localhost:8080/projects
    ```
-* Créer un utilisateur normal
+5. Créer un utilisateur normal
    ```sh
    METHOD : POST
    BODY : JSON
@@ -138,7 +138,7 @@ Voici une liste d'actions pour tester l'api :
 	"password": "sami_98"
    }
    ```
-* Créer un projet
+6. Créer un projet
    ```sh
    METHOD : POST
    BODY : JSON
@@ -152,7 +152,7 @@ Voici une liste d'actions pour tester l'api :
 	"description": "This project is confidential"
    }
    ```
-* Affecter un utilisateur à un projet
+7. Affecter un utilisateur à un projet
    ```sh
    METHOD : PATCH
    BODY : JSON
@@ -166,14 +166,14 @@ Voici une liste d'actions pour tester l'api :
 
    }
    ```
-* Se déconnecter
+8. Se déconnecter
    ```sh
    METHOD : GET
    ```
    ```sh
    http://localhost:8080/logout
    ```
-* Se connecter à l'api en tant qu'utilisateur normal
+9. Se connecter à l'api en tant qu'utilisateur normal
    ```sh
    METHOD : POST
    BODY : x-www-form-urlencoded
@@ -185,7 +185,7 @@ Voici une liste d'actions pour tester l'api :
    username : samiaymane98@gmail.com
    password : sami_98
    ```
-* Créer un log d'activité
+10. Créer un log d'activité
    ```sh
    METHOD : POST
    BODY : JSON
@@ -211,7 +211,7 @@ Voici une liste d'actions pour tester l'api :
 	"end" : "2021-02-09T18:00:00.000Z"
    }
    ```
-* Exporter le rapport d'activité
+11. Exporter le rapport d'activité
    ```sh
    METHOD : GET
    BODY : JSON (optional)
@@ -225,8 +225,8 @@ Voici une liste d'actions pour tester l'api :
 	"endDate" : "2021-02-12"
    }
    ```
-* Se déconnecter
-* Se connecter à l'api en tant que admin
+12. Se déconnecter
+13. Se connecter à l'api en tant que admin
    ```sh
    METHOD : POST
    BODY : x-www-form-urlencoded
@@ -238,7 +238,7 @@ Voici une liste d'actions pour tester l'api :
    username : admin@dev.dev
    password : admin
    ```
-* Changer le manager d'un user
+14. Changer le manager d'un user
    ```sh
    METHOD : PATCH
    BODY : JSON
@@ -251,7 +251,7 @@ Voici une liste d'actions pour tester l'api :
 	"action": "UPGRADE"
    }
    ```
-* Downgrade un user
+15. Downgrade un user
    ```sh
    METHOD : PATCH
    BODY : JSON
@@ -264,7 +264,7 @@ Voici une liste d'actions pour tester l'api :
 	"action": "DOWNGRADE"
    }
    ```
-* Delete un project
+16. Delete un project
    ```sh
    METHOD : DELETE
    ```
