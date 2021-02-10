@@ -40,8 +40,6 @@
 <!-- ABOUT THE PROJECT -->
 ## A propos du projet
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
 Cette application est une API développée sous Java. Elle permet le suivi de temps de travail des développeurs d'une entreprise.
 
 Voici la liste des fonctionnalités implémentées :
