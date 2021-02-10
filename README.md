@@ -161,7 +161,7 @@ Voici un scénario d'actions pour tester l'api :
    ```
    ```sh
    { 
-	"id": {users_id}
+	"id": {{user_id}}
 
    }
    ```
@@ -269,6 +269,13 @@ Voici un scénario d'actions pour tester l'api :
    ```
    ```sh
    http://localhost:8080/projects/{{project_id}}
+   ```
+17. Delete un user
+   ```sh
+   METHOD : DELETE
+   ```
+   ```sh
+   http://localhost:8080/users/{{user_id}}
    ```
 
 <!-- DOCUMENTATION -->
